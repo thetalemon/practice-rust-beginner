@@ -1,0 +1,2 @@
+# practice-rust-beginner
+はじめてのRust
