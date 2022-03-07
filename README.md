@@ -25,7 +25,7 @@
 - 相互に変換はできるので、必要になるまではイミュータブルにしておくのもアリだろうか
 
 
-## 2日目開発(fizzbuzzディレクトリ / P.63 ~ P.78 )
+## 2日目開発(fizzbuzzディレクトリ / P.63 ~ P.77 )
 - Rust三項演算子ないみたいやった！すてき！その姿勢がすてき！
   - 正直三項演算子を使わないためにif文だけの関数とか書くから、私はしっくりくる書き方に常に倒せて嬉しい
 - `0..100`でPythonにおける`range(100)`と同じになるのね
@@ -38,3 +38,47 @@
   - 関数型の方がじゃっかん最適化がききやすい、って程度なので、手続型でかいてもいいらしい。
   - でもどこかでしっかり履修したいな関数型プログラミング
 - キリもいいのでここまで。
+
+## 3日目開発(catディレクトリ / P.78 ~ P. )
+- パターンマッチ面白いかも。簡素なswitchっぽい？
+
+- Result型（enumの一種らしい）
+  - Ok(content), Err(reason)はOk.getContent(), Err.getReason()みたいな感じで覚えていい…のか…？
+    - ともあれ、content / reasonのように第一引数？に理由が代入されるらしい。アロー関数っぽいものと理解したらいいかな？
+- Ok/Errを後でハンドリングしたい場合は末尾に`?`をつければいいらしい
+  - そもそもResult型がmatchの引数になるときは、OkとErrがペアにならないとコンパイル通らないみたい。
+  - then/catchよりも明示的でいいかも。Goもthrowできないけど、throwできない系の流れはイイね。
+```rust
+  match read_to_string(path) {
+    Ok(content) => print!("{}", content),
+    Err(reason) => println!("{}", reason),
+  }
+```
+
+- Some/Noneはこんな感じ。
+```rust 
+  match std::env::args().nth(1) {
+    Some(path) => run_cat(path),
+    None => println!("No path is specified!"),
+  }
+```
+
+- あたいがある場合だけ処理したい、はこんな感じにできるらしい。
+```rust
+  if let Some(path) = std::env::args().nth(1) {
+    run_cat(path);
+  }
+```
+
+- 数値型。文字列型でも似たようなものが書ける
+```rust
+  match x {
+    1 => println!("one"),
+    2 => println!("two"),
+    3 => println!("three"),
+    // これはその他
+    _ => println!("anything"),
+  }
+```
+
+- nthってCSS以外ではじめてみるけど何の意味がググったら『N番目』って言われました。12thのthだった。
