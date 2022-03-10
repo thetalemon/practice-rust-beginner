@@ -1,14 +1,15 @@
+use rayon::prelude::*;
 use std::fs::read_to_string;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
 #[structopt(name = "rsgrep")]
-
 struct GrepArgs {
   #[structopt(name = "PATTERN")]
   pattern: String,
+  // Vec（ベクタ）にすると複数入る Arrayみたいなもの
   #[structopt(name = "FILE")]
-  path: String,
+  path: Vec<String>,
 }
 
 // これはstructoptがない場合の実装
@@ -18,19 +19,26 @@ struct GrepArgs {
 //   }
 // }
 
-fn grep(content: String, pattern: String) {
+fn grep(content: &str, pattern: &str, path: &str) {
   for line in content.lines() {
-    if line.contains(pattern.as_str()) {
-      println!("{}", line);
+    if line.contains(pattern) {
+      println!("{}: {}", path, line);
     }
   }
 }
 
 fn run(state: GrepArgs) {
-  match read_to_string(state.path) {
-    Ok(content) => grep(content, state.pattern),
-    Err(reason) => println!("{}", reason),
-  }
+  // iter()でベクタをイテレートできる　Array()みたいなもの
+  // rayonをいれてpar_iterにするとforを簡単に並列化できる
+  state
+    .path
+    .par_iter()
+    .for_each(|file| match read_to_string(file) {
+        // &にしないと所有権を移譲してしまうので、それ以降元の関数で使えなくなってしまう
+        // &であれば参照権限を付与するだけなので問題なし
+        Ok(content) => grep(&content, &state.pattern, file),
+        Err(reason) => println!("{}", reason),
+    });
 }
 
 fn main() {
