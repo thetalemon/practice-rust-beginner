@@ -5,6 +5,9 @@ use structopt::StructOpt;
 #[derive(StructOpt)]
 #[structopt(name = "rsgrep")]
 struct GrepArgs {
+  #[structopt(short, long)]
+  number: bool,
+
   #[structopt(name = "PATTERN")]
   pattern: String,
   // Vec（ベクタ）にすると複数入る Arrayみたいなもの
@@ -19,10 +22,14 @@ struct GrepArgs {
 //   }
 // }
 
-fn grep(content: &str, pattern: &str, path: &str) {
-  for line in content.lines() {
+fn grep(content: &str, pattern: &str, path: &str, number: &bool) {
+  for (i, line) in content.lines().enumerate()  {
     if line.contains(pattern) {
-      println!("{}: {}", path, line);
+      if *number {
+        println!("{} {}: {}", path, i, line);
+      } else {
+        println!("{}: {}", path, line);
+      }
     }
   }
 }
@@ -36,7 +43,7 @@ fn run(state: GrepArgs) {
     .for_each(|file| match read_to_string(file) {
         // &にしないと所有権を移譲してしまうので、それ以降元の関数で使えなくなってしまう
         // &であれば参照権限を付与するだけなので問題なし
-        Ok(content) => grep(&content, &state.pattern, file),
+        Ok(content) => grep(&content, &state.pattern, file, &state.number),
         Err(reason) => println!("{}", reason),
     });
 }
